@@ -6,6 +6,9 @@ on:
       - master
       - main
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -34,13 +37,10 @@ jobs:
       run: echo "tag=v$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
 
     - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ steps.tag.outputs.tag }}
-        release_name: Release ${{ steps.tag.outputs.tag }}
+        name: Release ${{ steps.tag.outputs.tag }}
         body: |
           Automated release from master branch
 
@@ -49,25 +49,8 @@ jobs:
           2. Make it executable: `chmod +x webp2mp4-*`
           3. Ensure ffmpeg is installed on your system
           4. Optional: Install ImageMagick for better compatibility
+        files: |
+          webp2mp4-linux-amd64
+          webp2mp4-linux-arm64
         draft: false
         prerelease: false
-
-    - name: Upload Linux AMD64
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./webp2mp4-linux-amd64
-        asset_name: webp2mp4-linux-amd64
-        asset_content_type: application/octet-stream
-
-    - name: Upload Linux ARM64
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./webp2mp4-linux-arm64
-        asset_name: webp2mp4-linux-arm64
-        asset_content_type: application/octet-stream
